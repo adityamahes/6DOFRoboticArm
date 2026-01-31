@@ -1,85 +1,81 @@
+#!/usr/bin/env python3
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+from scipy.spatial import ConvexHull
 
-L0 = 0.0175
-L1 = 0.088276
-L2 = 0.12145
-L3 = 0.182175
-
-BASE_MIN = -np.pi
-BASE_MAX = np.pi
-SHOULDER_MIN = -np.pi/2
-SHOULDER_MAX = np.pi/2
-ELBOW_MIN = -np.pi/2
-ELBOW_MAX = np.pi/2
-
-def forward_kinematics(theta0, theta1, theta2):
-    r = L2 * np.cos(theta1) + L3 * np.cos(theta1 + theta2)
-    r_total = r + L0
-    z_local = L2 * np.sin(theta1) + L3 * np.sin(theta1 + theta2)
-    
-    x = r_total * np.cos(theta0)
-    y = r_total * np.sin(theta0)
-    z = z_local + L1
-    
-    return x, y, z
-
-def monte_carlo_workspace(num_samples=50000):
-    points = []
-    
-    for _ in range(num_samples):
-        theta0 = np.random.uniform(BASE_MIN, BASE_MAX)
-        theta1 = np.random.uniform(SHOULDER_MIN, SHOULDER_MAX)
-        theta2 = np.random.uniform(ELBOW_MIN, ELBOW_MAX)
+class WorkspaceAnalyzer:
+    def __init__(self):
+        self.BASE_H = 0.052
+        self.SH_OFFSET_R = 0.0175
+        self.SH_H = 0.036276
+        self.L1 = 0.12145
+        self.L2 = 0.182175
         
-        x, y, z = forward_kinematics(theta0, theta1, theta2)
-        points.append([x, y, z])
-    
-    return np.array(points)
+        self.LIMITS = [
+            (-np.pi, np.pi),   # Base
+            (0.0, np.pi/2),    # Shoulder
+            (0.0, np.pi/2)     # Elbow
+        ]
+
+    def forward_kinematics(self, t1, t2, t3):
+        x1 = self.SH_OFFSET_R * np.cos(t1)
+        y1 = self.SH_OFFSET_R * np.sin(t1)
+        z1 = self.BASE_H + self.SH_H
+        
+        r1 = self.L1 * np.sin(t2)
+        x2 = x1 + r1 * np.cos(t1)
+        y2 = y1 + r1 * np.sin(t1)
+        z2 = z1 + self.L1 * np.cos(t2)
+        
+        r2 = self.L2 * np.sin(t2 + t3)
+        x3 = x2 + r2 * np.cos(t1)
+        y3 = y2 + r2 * np.sin(t1)
+        z3 = z2 + self.L2 * np.cos(t2 + t3)
+        
+        return x3, y3, z3
+
+    def generate_hull(self, samples=5000):
+        print(f"Sampling {samples} points to generate surface...")
+        t1 = np.random.uniform(self.LIMITS[0][0], self.LIMITS[0][1], samples)
+        t2 = np.random.uniform(self.LIMITS[1][0], self.LIMITS[1][1], samples)
+        t3 = np.random.uniform(self.LIMITS[2][0], self.LIMITS[2][1], samples)
+        
+        x, y, z = self.forward_kinematics(t1, t2, t3)
+        points = np.vstack((x, y, z)).T
+        
+        # ConvexHull generates the surface mesh
+        hull = ConvexHull(points)
+        return points, hull
+
+def plot_shaded_workspace(points, hull):
+    fig = plt.figure(figsize=(12, 10))
+    ax = fig.add_subplot(111, projection='3d')
+
+    # Plot the surface (shading)
+    # Each 'simplex' is a triangle forming the outer shell
+    ax.plot_trisurf(points[:,0], points[:,1], points[:,2], 
+                    triangles=hull.simplices, 
+                    cmap='plasma', alpha=0.3, edgecolor='none')
+
+    # Optional: Plot a few faint points to show density
+    ax.scatter(points[:,0], points[:,1], points[:,2], s=0.5, alpha=0.1, color='black')
+
+    ax.set_title("Robot Reachable Volume (Shaded Boundary)", fontsize=14, fontweight='bold')
+    ax.set_xlabel("X (m)")
+    ax.set_ylabel("Y (m)")
+    ax.set_zlabel("Z (m)")
+
+    # Normalize axes
+    max_dim = np.max(points)
+    ax.set_xlim(-max_dim, max_dim)
+    ax.set_ylim(-max_dim, max_dim)
+    ax.set_zlim(0, max_dim * 1.5)
+
+    print(f"Volume of reach: {hull.volume:.6f} m^3")
+    plt.show()
 
 if __name__ == "__main__":
-    print("Generating workspace with Monte Carlo sampling...")
-    print("This may take a moment...")
-    
-    points = monte_carlo_workspace(num_samples=50000)
-    
-    print(f"Generated {len(points)} points")
-    print(f"X range: [{points[:, 0].min():.3f}, {points[:, 0].max():.3f}] m")
-    print(f"Y range: [{points[:, 1].min():.3f}, {points[:, 1].max():.3f}] m")
-    print(f"Z range: [{points[:, 2].min():.3f}, {points[:, 2].max():.3f}] m")
-    
-    fig = plt.figure(figsize=(15, 5))
-    
-    ax1 = fig.add_subplot(131, projection='3d')
-    ax1.scatter(points[:, 0], points[:, 1], points[:, 2], c=points[:, 2], 
-                cmap='viridis', s=0.1, alpha=0.5)
-    ax1.set_xlabel('X (m)')
-    ax1.set_ylabel('Y (m)')
-    ax1.set_zlabel('Z (m)')
-    ax1.set_title('3D Workspace')
-    ax1.set_box_aspect([1,1,1])
-    
-    ax2 = fig.add_subplot(132)
-    ax2.scatter(points[:, 0], points[:, 1], c=points[:, 2], 
-                cmap='viridis', s=0.1, alpha=0.5)
-    ax2.set_xlabel('X (m)')
-    ax2.set_ylabel('Y (m)')
-    ax2.set_title('Top View (XY plane)')
-    ax2.set_aspect('equal')
-    ax2.grid(True)
-    
-    ax3 = fig.add_subplot(133)
-    r = np.sqrt(points[:, 0]**2 + points[:, 1]**2)
-    ax3.scatter(r, points[:, 2], c=points[:, 2], 
-                cmap='viridis', s=0.1, alpha=0.5)
-    ax3.set_xlabel('R (m)')
-    ax3.set_ylabel('Z (m)')
-    ax3.set_title('Side View (RZ plane)')
-    ax3.set_aspect('equal')
-    ax3.grid(True)
-    
-    plt.tight_layout()
-    plt.savefig('workspace.png', dpi=300, bbox_inches='tight')
-    print("\nWorkspace visualization saved as 'workspace.png'")
-    plt.show()
+    analyzer = WorkspaceAnalyzer()
+    pts, hull_data = analyzer.generate_hull(samples=10000)
+    plot_shaded_workspace(pts, hull_data)
