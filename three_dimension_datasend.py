@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
@@ -7,8 +6,6 @@ from scipy.optimize import minimize
 import serial
 import time
 
-# --- CONFIGURATION ---
-# Identify the COM port of your USB-to-TTL adapter (e.g., 'COM4' or '/dev/ttyUSB0')
 DATA_PORT = 'COM8' 
 BAUD_RATE = 115200
 

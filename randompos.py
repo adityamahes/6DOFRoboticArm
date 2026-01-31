@@ -1,4 +1,3 @@
-# random_position.py
 import numpy as np
 
 L0 = 0.0175

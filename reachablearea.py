@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
@@ -44,7 +43,6 @@ class WorkspaceAnalyzer:
         x, y, z = self.forward_kinematics(t1, t2, t3)
         points = np.vstack((x, y, z)).T
         
-        # ConvexHull generates the surface mesh
         hull = ConvexHull(points)
         return points, hull
 
@@ -52,13 +50,10 @@ def plot_shaded_workspace(points, hull):
     fig = plt.figure(figsize=(12, 10))
     ax = fig.add_subplot(111, projection='3d')
 
-    # Plot the surface (shading)
-    # Each 'simplex' is a triangle forming the outer shell
     ax.plot_trisurf(points[:,0], points[:,1], points[:,2], 
                     triangles=hull.simplices, 
                     cmap='plasma', alpha=0.3, edgecolor='none')
 
-    # Optional: Plot a few faint points to show density
     ax.scatter(points[:,0], points[:,1], points[:,2], s=0.5, alpha=0.1, color='black')
 
     ax.set_title("Robot Reachable Volume (Shaded Boundary)", fontsize=14, fontweight='bold')
@@ -66,7 +61,6 @@ def plot_shaded_workspace(points, hull):
     ax.set_ylabel("Y (m)")
     ax.set_zlabel("Z (m)")
 
-    # Normalize axes
     max_dim = np.max(points)
     ax.set_xlim(-max_dim, max_dim)
     ax.set_ylim(-max_dim, max_dim)
