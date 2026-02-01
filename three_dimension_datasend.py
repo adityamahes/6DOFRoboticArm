@@ -11,10 +11,10 @@ BAUD_RATE = 115200
 
 try:
     ser = serial.Serial(DATA_PORT, BAUD_RATE, timeout=0.05)
-    print(f"Connected to Data Port: {DATA_PORT}")
+    print(f"Connected {DATA_PORT}")
 except Exception as e:
     ser = None
-    print(f"FAILED to connect to {DATA_PORT}: {e}")
+    print(f"FAILED {DATA_PORT}: {e}")
 
 class RobotArm:
     def __init__(self):
