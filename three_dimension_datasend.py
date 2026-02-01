@@ -28,14 +28,30 @@ class RobotArm:
 
     def forward_kinematics(self, angles):
         t1, t2, t3 = angles
-        x1 = self.SH_OFFSET_R * np.cos(t1); y1 = self.SH_OFFSET_R * np.sin(t1); z1 = self.BASE_H + self.SH_H
-        r1 = self.L1 * np.sin(t2); x2 = x1 + r1 * np.cos(t1); y2 = y1 + r1 * np.sin(t1); z2 = z1 + self.L1 * np.cos(t2)
-        r2 = self.L2 * np.sin(t2 + t3); x3 = x2 + r2 * np.cos(t1); y3 = y2 + r2 * np.sin(t1); z3 = z2 + self.L2 * np.cos(t2 + t3)
+
+        x1 = self.SH_OFFSET_R * np.cos(t1)
+        y1 = self.SH_OFFSET_R * np.sin(t1)
+        z1 = self.BASE_H + self.SH_H
+
+
+        r1 = self.L1 * np.sin(t2)
+        x2 = x1 + r1 * np.cos(t1)
+        y2 = y1 + r1 * np.sin(t1)
+        z2 = z1 + self.L1 * np.cos(t2)
+
+
+        r2 = self.L2 * np.sin(t2 + t3)
+        x3 = x2 + r2 * np.cos(t1)
+        y3 = y2 + r2 * np.sin(t1)
+        z3 = z2 + self.L2 * np.cos(t2 + t3)
+
+    
         return np.array([x3, y3, z3])
 
     def get_link_positions(self, angles):
         t1, t2, t3 = angles
-        p0 = np.array([0, 0, 0]); p1 = np.array([0, 0, self.BASE_H])
+        p0 = np.array([0, 0, 0])
+        p1 = np.array([0, 0, self.BASE_H])
         x1 = self.SH_OFFSET_R * np.cos(t1); y1 = self.SH_OFFSET_R * np.sin(t1); z1 = self.BASE_H + self.SH_H
         p2 = np.array([x1, y1, z1])
         r1 = self.L1 * np.sin(t2); x2 = x1 + r1 * np.cos(t1); y2 = y1 + r1 * np.sin(t1); z2 = z1 + self.L1 * np.cos(t2)
@@ -48,6 +64,40 @@ class RobotArm:
         def cost(angles): return np.linalg.norm(self.forward_kinematics(angles) - target)
         res = minimize(cost, [0, 0, 0], method='SLSQP', bounds=self.LIMITS, tol=1e-6)
         return res.x, np.linalg.norm(self.forward_kinematics(res.x) - target)
+
+        
+        # # USING NORMAL GEOMETRY:
+        # x, y, z = target
+
+        # t1 = np.arctan2(y, x)
+
+        # r = np.sqrt(x**2 + y**2) - self.SH_OFFSET_R
+        # z_p = z - (self.BASE_H + self.SH_H)
+
+        # #elbow
+        # L1, L2 = self.L1, self.L2
+        # D = (r**2 + z_p**2 - L1**2 - L2**2) / (2 * L1 * L2)
+
+        # if np.abs(D) > 1.0:
+        #     return np.array([0.0, 0.0, 0.0]), np.inf  # unreachable
+
+        # t3 = np.arccos(D)  # elbow-down solution
+
+        # #shoulder
+        # phi = np.arctan2(r, z_p)
+        # psi = np.arctan2(L2 * np.sin(t3), L1 + L2 * np.cos(t3))
+        # t2 = phi - psi
+        # angles = np.array([t1, t2, t3])
+
+        # #joint limits check
+        # for i, (low, high) in enumerate(self.LIMITS):
+        #     if not (low <= angles[i] <= high):
+        #         return angles, np.inf
+
+        # err = np.linalg.norm(self.forward_kinematics(angles) - target)
+        # return angles, err
+
+        
 
 class Interactive3DRobot:
     def __init__(self, robot):

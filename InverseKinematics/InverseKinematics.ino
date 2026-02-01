@@ -2,7 +2,6 @@
 
 #include <Servo.h>
 
-// PIN CONFIGURATION
 const int PIN_BASE      = 3;
 const int PIN_SHOULDER1  = 6;
 const int PIN_SHOULDER2  = 7;
@@ -13,7 +12,6 @@ const int PIN_WRIST      = 12;
 Servo base, shoulder1, shoulder2, elbow1, elbow2, wrist;
 
 void setup() {
-  // Single Serial port for both data and debugging
   Serial.begin(115200);
 
   base.attach(PIN_BASE);
@@ -23,15 +21,12 @@ void setup() {
   elbow2.attach(PIN_ELBOW2);
   wrist.attach(PIN_WRIST);
 
-  // Note: These will print to the Python console now, not the Serial Monitor
-  Serial.println("SYSTEM_READY");
 }
 
 void loop() {
   if (Serial.available() > 0) {
     String data = Serial.readStringUntil('\n');
     
-    // Parsing logic: "B90,S45,E120"
     int bIdx = data.indexOf('B');
     int sIdx = data.indexOf('S');
     int eIdx = data.indexOf('E');
@@ -47,7 +42,6 @@ void loop() {
       elbow1.write(constrain(eVal, 0, 180));
       elbow2.write(constrain(180 - eVal, 0, 180));
       
-      // Feedback sent back to Python console
       Serial.print("ACK:B"); Serial.print(bVal);
       Serial.print("S"); Serial.print(sVal);
       Serial.print("E"); Serial.println(eVal);
