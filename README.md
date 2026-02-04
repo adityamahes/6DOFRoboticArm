@@ -34,7 +34,7 @@ Key challenges solved:
 2. **Joint Limits:** Software-clamping angles to prevent physical self-collision.
 3. **Coordinate Transformation:** Geometric transformation maps the end-effector to the base by summing link vectors via trigonometry for position and accumulating joint angles for orientation.
 
-## ⚡ Technical Challenges & Solutions
+## Technical Challenges & Solutions
 
 | Challenge | Solution |
 | --- | --- |
