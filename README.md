@@ -45,13 +45,13 @@ Key challenges solved:
 | **Torque Sag** | The elbow joint struggled against gravity at full extension. Added a counterweight/spring assist (or upgraded motor) to compensate. |
 | **Latency** | Serial communication lag caused "stuttering." Optimized the baud rate to 115200 and packed data into binary structs instead of parsing strings. |
 
-## 🚀 Future Roadmap
+## Future Roadmap
 
 * [ ] **Gripper Upgrade:** Designing a 3-finger gripper inspired by the Tesla Optimus hand.
 * [ ] **Computer Vision:** Integrating OpenCV to track objects for autonomous pick-and-place.
 * [ ] **BCI Integration:** Interfacing with OpenBCI hardware to control the end-effector via SSVEP or Motor Imagery signals.
 
-## 📂 Repository Structure
+## Repository Structure
 
 ```bash
 ├── CAD/                 # SolidWorks/STL files for printing
@@ -62,7 +62,7 @@ Key challenges solved:
 
 ```
 
-## 🔧 Setup & Usage
+## Setup & Usage
 
 1. **Flash Firmware:** Upload the arduino code to the microcontroller.
 2. **Install Dependencies:**
