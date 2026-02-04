@@ -5,29 +5,29 @@
 [**Insert GIF of Arm Moving Here**]
 *(Recommended: A 5-second loop of the arm moving to a coordinate smoothly)*
 
-## 💡 Motivation
+## Motivation
 
 The goal was not to assemble a kit, but to engineer the entire stack—from the mechanical CAD design to the low-level motor control firmware. The primary challenge was implementing a custom **Inverse Kinematics solver** to translate 3D Cartesian coordinates  into specific joint angles  in real-time.
 
 Future iterations will serve as a hardware testbed for **Brain-Computer Interface (BCI)** integration, translating EEG signals into physical manipulation.
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Software
 
 * **Inverse Kinematics Solver:** Python (NumPy/SciPy) for matrix transformations.
-* **Visualization:** Matplotlib/PyGame for real-time 3D simulation.
+* **Visualization:** Matplotlib for real-time 3D simulation.
 * **Firmware:** C++ (Arduino) for servo control and serial communication.
 * **Communication:** PySerial (UART) for PC-to-Microcontroller data stream.
 
 ### Hardware
 
-* **Controller:** Arduino Mega / ESP32.
-* **Actuators:** [Insert Servo Models, e.g., MG996R] (High Torque) & NEMA Steppers.
-* **Chassis:** Custom designed in SolidWorks, 3D printed in PETG/PLA.
-* **Power:** [Insert Power Supply details, e.g., 5V 10A PSU] (Crucial for preventing brownouts).
+* **Controller:** Arduino Mega.
+* **Actuators:** MG996R (High Torque)
+* **Chassis:** Custom designed in SolidWorks, 3D printed in PLA/PETG.
+* **Power:**  6V 1.5A PSU (Crucial for preventing brownouts).
 
-## 🧮 The Math (Inverse Kinematics)
+## The Math (Inverse Kinematics)
 
 This project uses [Geometric / Analytical / Numerical] methods to solve the IK problem.
 
@@ -35,7 +35,7 @@ Key challenges solved:
 
 1. **Singularity Management:** Handling edge cases where the Jacobian determinant approaches zero (e.g., "gimbal lock" or full extension).
 2. **Joint Limits:** Software-clamping angles to prevent physical self-collision.
-3. **Coordinate Transformation:** Mapping the end-effector frame relative to the base frame using Denavit-Hartenberg (DH) parameters.
+3. **Coordinate Transformation:** Geometric transformation maps the end-effector to the base by summing link vectors via trigonometry for position and accumulating joint angles for orientation.
 
 ## ⚡ Technical Challenges & Solutions
 
@@ -64,7 +64,7 @@ Key challenges solved:
 
 ## 🔧 Setup & Usage
 
-1. **Flash Firmware:** Upload `Firmware/main.ino` to the microcontroller.
+1. **Flash Firmware:** Upload the arduino code to the microcontroller.
 2. **Install Dependencies:**
 ```bash
 pip install numpy pyserial matplotlib
