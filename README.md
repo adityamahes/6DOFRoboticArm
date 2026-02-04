@@ -2,9 +2,6 @@
 
 **A 6-Degree-of-Freedom robotic arm built from scratch to test custom Inverse Kinematics (IK) algorithms and real-time motion planning.**
 
-[**Insert GIF of Arm Moving Here**]
-*(Recommended: A 5-second loop of the arm moving to a coordinate smoothly)*
-
 ## Motivation
 
 The goal was not to assemble a kit, but to engineer the entire stack—from the mechanical CAD design to the low-level motor control firmware. The primary challenge was implementing a custom **Inverse Kinematics solver** to translate 3D Cartesian coordinates  into specific joint angles  in real-time.
